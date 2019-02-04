@@ -136,7 +136,7 @@ class analyze():
                         if ('shift' in characteristic):
                             ssim, ssl, ssr = self.token_sim(characteristic['shift'], dcharacteristic)
                             if (ssim > sim):
-                                ssim = sim
+                                sim = ssim
                             if  (ssr < sr):
                                 sr = ssr
                             if (ssl < sl):
