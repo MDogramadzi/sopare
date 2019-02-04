@@ -19,7 +19,8 @@ under the License.
 
 class compare():
 
-    def __init__(self, debug, util):
+    def __init__(self, debug, util, cfg):
+        self.cfg = cfg
         self.debug = debug
         self.util = util
         self.learned_dictionary = self.util.getDICT()

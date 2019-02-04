@@ -37,7 +37,7 @@ class worker(multiprocessing.Process):
         self.logger = self.cfg.getlogger().getlog()
         self.logger = logging.getLogger(__name__)
         self.analyze = sopare.analyze.analyze(self.cfg)
-        self.compare = sopare.comparator.compare(self.cfg.getbool('cmdlopt', 'debug'), self.util)
+        self.compare = sopare.comparator.compare(self.cfg.getbool('cmdlopt', 'debug'), self.util, self.cfg)
         self.running = True
         self.counter = 0
         self.plot_counter = 0
@@ -99,7 +99,7 @@ class worker(multiprocessing.Process):
                 self.character.append((characteristic, meta))
 
                 self.compare.word(self.character)
-                
+
                 if (self.cfg.getoption('cmdlopt', 'dict') != None):
                     self.raw_character.append({ 'fft': fft, 'norm': norm, 'meta': meta })
                 if (characteristic != None):

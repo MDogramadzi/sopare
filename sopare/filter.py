@@ -77,17 +77,17 @@ class filtering():
         windows = self.cfg.getintoption('experimental', 'WINDOW_COUNT')
         if (self.first == True):
             self.data_shift = [ ]
-            for _ in range(0, windows): 
+            for _ in range(0, windows):
                 self.data_shift.append([])  # one array for each split window
 
             for w in range(0, windows):
                 self.data_shift[w] = [ v for v in range(0, (windows-w)*self.cfg.getintoption('stream', 'CHUNKS')/(windows+1)) ]
-                self.data_shift[w].extend(data[0:((w+1)*len(data))/(windows+1)])
+                self.data_shift[w].extend(data[0:(((w+1)*len(data))/(windows+1))])
 
         else:
             for w in range(0, windows):
                 self.data_shift[w] = self.last_data[(windows-w)*len(self.last_data)/(windows+1):]
-                self.data_shift[w].extend(data[0:((w+1)*len(data)/(windows+1))])
+                self.data_shift[w].extend(data[0:(((w+1)*len(data))/(windows+1))])
 
         self.last_data = data
 
@@ -156,7 +156,7 @@ class filtering():
             for w in range(0, windows):
                 shift_fft[w][self.cfg.getintoption('characteristic', 'HIGH_FREQ'):] = 0
                 shift_fft[w][:self.cfg.getintoption('characteristic', 'LOW_FREQ')] = 0
-                shift_data[w] = numpy.fft.irfft(shift_fft[w])
+                shift_data = numpy.fft.irfft(shift_fft[w])
                 shift_nfft = fft[self.cfg.getintoption('characteristic', 'LOW_FREQ'):self.cfg.getintoption('characteristic', 'HIGH_FREQ')]
                 shift_nfft = numpy.abs(nfft)
                 shift_nfft[nfft == 0] = numpy.NaN

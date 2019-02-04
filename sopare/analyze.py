@@ -144,10 +144,10 @@ class analyze():
                                     sr = ssr
                                 if (ssl < sl):
                                     sl = ssl
-                            token_sim[0] += sim
-                            token_sim[1] += sl
-                            token_sim[2] += sr
-                            c += 1.0
+                        token_sim[0] += sim
+                        token_sim[1] += sl
+                        token_sim[2] += sr
+                        c += 1.0
                 if (c > 0):
                     token_sim[0] = token_sim[0] / c
                     if (token_sim[0] > 1.0 and c >= self.cfg.getintoption('compare', 'MIN_START_TOKENS') and c >= self.dict_analysis[id]['min_tokens']):
