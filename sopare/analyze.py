@@ -133,18 +133,21 @@ class analyze():
                         do = data[startpos + i]
                         characteristic, _ = do
                         sim, sl, sr = self.token_sim(characteristic, dcharacteristic)
-                        if ('shift' in characteristic):
-                            ssim, ssl, ssr = self.token_sim(characteristic['shift'], dcharacteristic)
-                            if (ssim > sim):
-                                sim = ssim
-                            if  (ssr < sr):
-                                sr = ssr
-                            if (ssl < sl):
-                                sl = ssl
-                        token_sim[0] += sim
-                        token_sim[1] += sl
-                        token_sim[2] += sr
-                        c += 1.0
+
+                        windows = self.cfg.getintoption('experimental', 'WINDOW_COUNT')
+                        for w in range(0, windows):
+                            if ('shift_'+str(w) in characteristic):
+                                ssim, ssl, ssr = self.token_sim(characteristic['shift_'+str(w)], dcharacteristic)
+                                if (ssim > sim):
+                                    sim = ssim
+                                if  (ssr < sr):
+                                    sr = ssr
+                                if (ssl < sl):
+                                    sl = ssl
+                            token_sim[0] += sim
+                            token_sim[1] += sl
+                            token_sim[2] += sr
+                            c += 1.0
                 if (c > 0):
                     token_sim[0] = token_sim[0] / c
                     if (token_sim[0] > 1.0 and c >= self.cfg.getintoption('compare', 'MIN_START_TOKENS') and c >= self.dict_analysis[id]['min_tokens']):

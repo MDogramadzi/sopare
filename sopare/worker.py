@@ -97,7 +97,9 @@ class worker(multiprocessing.Process):
                 norm = obj['norm']
                 characteristic = obj['characteristic']
                 self.character.append((characteristic, meta))
+
                 self.compare.word(self.character)
+                
                 if (self.cfg.getoption('cmdlopt', 'dict') != None):
                     self.raw_character.append({ 'fft': fft, 'norm': norm, 'meta': meta })
                 if (characteristic != None):
