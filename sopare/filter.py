@@ -72,6 +72,26 @@ class filtering():
             return (fft/norm).tolist()
         return []
 
+
+    def n_shift_n(self, data):
+        windows = self.cfg.getintoption('experimental', 'WINDOW_COUNT')
+        if (self.first == True):
+            self.data_shift = [ ]
+            for _ in range(0, windows): 
+                self.data_shift.append([])  # one array for each split window
+
+            for w in range(0, windows):
+                self.data_shift[w] = [ v for v in range(0, (windows-w)*self.cfg.getintoption('stream', 'CHUNKS')/(windows+1)) ]
+                self.data_shift[w].extend(data[0:((w+1)*len(data))/(windows+1)])
+
+        else:
+            for w in range(0, windows):
+                self.data_shift[w] = self.last_data[(windows-w)*len(self.last_data)/(windows+1):]
+                self.data_shift[w].extend(data[0:((w+1)*len[data]/(windows+1))])
+
+        self.last_data = data
+
+
     def n_shift(self, data):
         if (self.first == True):
             self.data_shift = [ ]
