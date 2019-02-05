@@ -81,12 +81,12 @@ class filtering():
                 self.data_shift.append([])  # one array for each split window
 
             for w in range(0, windows):
-                self.data_shift[w] = [ v for v in range(0, (windows-w)*self.cfg.getintoption('stream', 'CHUNKS')/(windows+1)) ]
+                self.data_shift[w] = [ v for v in range(0, (((windows-w)*self.cfg.getintoption('stream', 'CHUNKS'))/(windows+1))) ]
                 self.data_shift[w].extend(data[0:(((w+1)*len(data))/(windows+1))])
 
         else:
             for w in range(0, windows):
-                self.data_shift[w] = self.last_data[(windows-w)*len(self.last_data)/(windows+1):]
+                self.data_shift[w] = self.last_data[(((windows-w)*len(self.last_data))/(windows+1)):]
                 self.data_shift[w].extend(data[0:(((w+1)*len(data))/(windows+1))])
 
         self.last_data = data
@@ -152,8 +152,8 @@ class filtering():
             normalized = self.normalize(chunked_norm)
         characteristic = self.characteristic.getcharacteristic(fft, normalized, meta)
 
-        if ((shift_fft != []) and self.cfg.hasoption('experimental', 'FFT_SHIFT') and self.cfg.getbool('experimental', 'FFT_SHIFT') == True):
-            for w in range(0, windows):
+        for w in range(0, windows):
+            if ((shift_fft[w] != []) and self.cfg.hasoption('experimental', 'FFT_SHIFT') and self.cfg.getbool('experimental', 'FFT_SHIFT') == True):
                 shift_fft[w][self.cfg.getintoption('characteristic', 'HIGH_FREQ'):] = 0
                 shift_fft[w][:self.cfg.getintoption('characteristic', 'LOW_FREQ')] = 0
                 shift_data = numpy.fft.irfft(shift_fft[w])
@@ -168,7 +168,7 @@ class filtering():
                     shift_nfft = numpy.tanh(shift_nfft/shift_nam)
                     shift_chunked_norm = self.get_chunked_norm(shift_nfft)
                     shift_normalized = self.normalize(shift_chunked_norm)
-                shift_characteristic = self.characteristic.getcharacteristic(shift_fft, shift_normalized, meta)
+                shift_characteristic = self.characteristic.getcharacteristic(shift_fft[w], shift_normalized, meta)
                 characteristic['shift_'+str(w)] = shift_characteristic
 
         obj = { 'action': 'data', 'token': data, 'fft': fft, 'norm': normalized, 'meta': meta, 'characteristic': characteristic }

@@ -66,7 +66,7 @@ class compare():
                         self.results[id][x][dict_c_pos] = fast_sim
                     
                     windows = self.cfg.getintoption('experimental', 'WINDOW_COUNT')
-                    for w in range(0, windows):
+                    for w in range(0, windows): 
                         if ('shift_'+str(w) in characteristic):
                             shift = characteristic['shift_'+str(w)]
                             fc_sim = self.util.single_similarity(shift['fc'], dcharacteristic['fc'])
