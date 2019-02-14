@@ -65,13 +65,11 @@ class compare():
                     if (fast_sim > self.results[id][x][dict_c_pos]):
                         self.results[id][x][dict_c_pos] = fast_sim
                     
-                    windows = self.cfg.getintoption('experimental', 'WINDOW_COUNT')
-                    for w in range(0, windows): 
-                        if ('shift_'+str(w) in characteristic):
-                            shift = characteristic['shift_'+str(w)]
-                            fc_sim = self.util.single_similarity(shift['fc'], dcharacteristic['fc'])
-                            dfm_sim = self.util.single_similarity(shift['dfm'], dcharacteristic['dfm'])
-                            fast_sim = (fc_sim + dfm_sim) / 2.0
-                            if (fast_sim > self.results[id][x][dict_c_pos]):
-                                self.results[id][x][dict_c_pos] = fast_sim
+                    if ('shift' in characteristic):
+                        shift = characteristic['shift']
+                        fc_sim = self.util.single_similarity(shift['fc'], dcharacteristic['fc'])
+                        dfm_sim = self.util.single_similarity(shift['dfm'], dcharacteristic['dfm'])
+                        fast_sim = (fc_sim + dfm_sim) / 2.0
+                        if (fast_sim > self.results[id][x][dict_c_pos]):
+                            self.results[id][x][dict_c_pos] = fast_sim
 

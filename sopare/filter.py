@@ -22,6 +22,7 @@ import logging
 import numpy
 import sopare.worker
 import sopare.characteristics
+from math import ceil
 
 class filtering():
 
@@ -72,6 +73,24 @@ class filtering():
             return (fft/norm).tolist()
         return []
 
+    
+    def populate_subwindow(self, data):
+        length = self.cfg.getfloatoption('cmdlopt', 'length')  # length of subwindow (ratio to regular length)
+        delta = self.cfg.getfloatoption('cmdlopt', 'delta')  # offset from end of regular window
+        prv_chk_mlt = length + delta - 1  # portion of previous chunk
+        cur_chk_mlt = 1 - delta  # portion of current chunk
+        chk_len = self.cfg.getintoption('stream', 'CHUNKS')
+        if (self.first == True):
+            self.data_shift = [ ]
+            self.data_shift = [ v for v in range(0, int(ceil(prv_chk_mlt*chk_len))) ]
+        else:
+            self.data_shift = self.last_data[int(ceil(prv_chk_mlt*chk_len)):]
+        
+        self.data_shift.extend(data[0:int(ceil(cur_chk_mlt*chk_len))])
+
+        self.last_data = data
+
+
 
     def n_shift_n(self, data):
         windows = self.cfg.getintoption('experimental', 'WINDOW_COUNT')
@@ -110,16 +129,12 @@ class filtering():
         self.data_shift_counter += 1
 
     def filter(self, data, meta):
-        windows = self.cfg.getintoption('experimental', 'WINDOW_COUNT')
-        self.n_shift_n(data)
-        shift_fft = []
-        for _ in range(0, windows):
-            shift_fft.append([])
+        self.populate_subwindow(data)
+        shift_fft = None
         if (self.first == False or self.cfg.getbool('characteristic', 'HANNING') == False or len(data) < self.cfg.getintoption('stream', 'CHUNKS')):
             fft = numpy.fft.rfft(data)
-            for w in range(0, windows):
-                if (len(self.data_shift[w]) >= self.cfg.getintoption('stream', 'CHUNKS')):
-                    shift_fft[w] = numpy.fft.rfft(self.data_shift[w])
+            if (len(self.data_shift) >= self.cfg.getintoption('stream', 'CHUNKS')):
+                shift_fft = numpy.fft.rfft(self.data_shift)
             self.first = self.check_for_windowing(meta)
         elif (self.first == True):
             self.logger.debug('New window!')
@@ -128,14 +143,13 @@ class filtering():
                 hl += 1
             hw = numpy.hanning(hl)
             fft = numpy.fft.rfft(data * hw)
-            for w in range(0, windows):
-                if (len(self.data_shift[w]) >= self.cfg.getintoption('stream', 'CHUNKS')):
-                    hl = len(self.data_shift[w])
-                    if (hl % 2 != 0):
-                        hl += 1
-                    hw = numpy.hanning(hl)
-                    shift_fft[w] = numpy.fft.rfft(self.data_shift[w] * hw)
-                    self.first = False
+            if (len(self.data_shift) >= self.cfg.getintoption('stream', 'CHUNKS')):
+                hl = len(self.data_shift)
+                if (hl % 2 != 0):
+                    hl += 1
+                hw = numpy.hanning(hl)
+                shift_fft = numpy.fft.rfft(self.data_shift * hw)
+                self.first = False
         fft[self.cfg.getintoption('characteristic', 'HIGH_FREQ'):] = 0
         fft[:self.cfg.getintoption('characteristic', 'LOW_FREQ')] = 0
         data = numpy.fft.irfft(fft)
@@ -152,24 +166,23 @@ class filtering():
             normalized = self.normalize(chunked_norm)
         characteristic = self.characteristic.getcharacteristic(fft, normalized, meta)
 
-        for w in range(0, windows):
-            if ((shift_fft[w] != []) and self.cfg.hasoption('experimental', 'FFT_SHIFT') and self.cfg.getbool('experimental', 'FFT_SHIFT') == True):
-                shift_fft[w][self.cfg.getintoption('characteristic', 'HIGH_FREQ'):] = 0
-                shift_fft[w][:self.cfg.getintoption('characteristic', 'LOW_FREQ')] = 0
-                shift_data = numpy.fft.irfft(shift_fft[w])
-                shift_nfft = fft[self.cfg.getintoption('characteristic', 'LOW_FREQ'):self.cfg.getintoption('characteristic', 'HIGH_FREQ')]
-                shift_nfft = numpy.abs(nfft)
-                shift_nfft[nfft == 0] = numpy.NaN
-                shift_nfft = numpy.log10(nfft)**2
-                shift_nfft[numpy.isnan(shift_nfft)] = 0
-                shift_nam = numpy.amax(shift_nfft)
-                shift_normalized = [0]
-                if (shift_nam > 0):
-                    shift_nfft = numpy.tanh(shift_nfft/shift_nam)
-                    shift_chunked_norm = self.get_chunked_norm(shift_nfft)
-                    shift_normalized = self.normalize(shift_chunked_norm)
-                shift_characteristic = self.characteristic.getcharacteristic(shift_fft[w], shift_normalized, meta)
-                characteristic['shift_'+str(w)] = shift_characteristic
+        if ((shift_fft is not None) and self.cfg.hasoption('experimental', 'FFT_SHIFT') and self.cfg.getbool('experimental', 'FFT_SHIFT') == True):
+            shift_fft[self.cfg.getintoption('characteristic', 'HIGH_FREQ'):] = 0
+            shift_fft[:self.cfg.getintoption('characteristic', 'LOW_FREQ')] = 0
+            shift_data = numpy.fft.irfft(shift_fft)
+            shift_nfft = fft[self.cfg.getintoption('characteristic', 'LOW_FREQ'):self.cfg.getintoption('characteristic', 'HIGH_FREQ')]
+            shift_nfft = numpy.abs(nfft)
+            shift_nfft[nfft == 0] = numpy.NaN
+            shift_nfft = numpy.log10(nfft)**2
+            shift_nfft[numpy.isnan(shift_nfft)] = 0
+            shift_nam = numpy.amax(shift_nfft)
+            shift_normalized = [0]
+            if (shift_nam > 0):
+                shift_nfft = numpy.tanh(shift_nfft/shift_nam)
+                shift_chunked_norm = self.get_chunked_norm(shift_nfft)
+                shift_normalized = self.normalize(shift_chunked_norm)
+            shift_characteristic = self.characteristic.getcharacteristic(shift_fft, shift_normalized, meta)
+            characteristic['shift'] = shift_characteristic
 
         obj = { 'action': 'data', 'token': data, 'fft': fft, 'norm': normalized, 'meta': meta, 'characteristic': characteristic }
         self.queue.put(obj)

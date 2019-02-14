@@ -36,6 +36,8 @@ def main(argv):
     wave = False
     error = False
     cfg_ini = None
+    length = None
+    delta = None
 
     recreate = False
     unit = False
@@ -44,9 +46,9 @@ def main(argv):
 
     if (len(argv) > 0):
         try:
-            opts, args = getopt.getopt(argv, "ahelpv~cous:w:r:t:d:i:",
+            opts, args = getopt.getopt(argv, "ahelpv~cous:w:r:e:t:d:i:",
              ["analysis", "help", "error", "loop", "plot", "verbose", "wave", "create", "overview", "unit",
-              "show=", "write=", "read=", "train=", "delete=", "ini="
+              "show=", "write=", "read=", "evaluate=", "train=", "delete=", "ini="
              ])
         except getopt.GetoptError:
             usage()
@@ -84,6 +86,10 @@ def main(argv):
                 outfile = arg
             if opt in ("-r", "--read"):
                 infile = arg
+            if opt in ('-e', '--evaluate'):  # testing requires infile, L, and Delta
+                # infile = sys.argv[2]
+                length = sys.argv[2]
+                delta = sys.argv[3]
             if opt in ("-t", "--train"):
                 dict = arg
             if opt in ("-d", "--delete"):
@@ -94,7 +100,7 @@ def main(argv):
             if opt in ("-u", "--unit"):
                 unit = True
 
-    cfg = create_config(cfg_ini, endless_loop, debug, plot, wave, outfile, infile, dict, error)
+    cfg = create_config(cfg_ini, endless_loop, debug, plot, wave, outfile, infile, dict, error, length, delta)
 
     if (recreate == True):
         recreate_dict(debug, cfg)
@@ -107,7 +113,7 @@ def main(argv):
 
     recorder.recorder(cfg)
 
-def create_config(cfg_ini, endless_loop, debug, plot, wave, outfile, infile, dict, error):
+def create_config(cfg_ini, endless_loop, debug, plot, wave, outfile, infile, dict, error, length, delta):
     if (cfg_ini == None):
         cfg = config.config()
     else:
@@ -121,6 +127,8 @@ def create_config(cfg_ini, endless_loop, debug, plot, wave, outfile, infile, dic
     cfg.setoption('cmdlopt', 'outfile', outfile)
     cfg.setoption('cmdlopt', 'infile', infile)
     cfg.setoption('cmdlopt', 'dict', dict)
+    cfg.setoption('cmdlopt', 'length', length)
+    cfg.setoption('cmdlopt', 'delta', delta)
     cfg.addlogger(logger)
     return cfg
 
@@ -164,24 +172,25 @@ def unit_tests(debug, cfg):
 
 def usage():
     print ("usage:\n")
-    print (" -h --help           : this help\n")
-    print (" -l --loop           : loop forever\n")
-    print (" -e --error          : redirect sdterr to error.log\n")
-    print (" -p --plot           : plot results (only without loop option)\n")
-    print (" -v --verbose        : enable verbose mode\n")
-    print (" -~ --wave           : create *.wav files (token/tokenN.wav) for")
-    print ("                       each detected word\n")
-    print (" -c --create         : create dict from raw input files\n")
-    print (" -o --overview       : list all dict entries\n")
-    print (" -s --show   [word]  : show detailed [word] entry information")
-    print ("                       '*' shows all entries!\n")
-    print (" -w --write  [file]  : write raw to [dir/filename]\n")
-    print (" -r --read   [file]  : read raw from [dir/filename]\n")
-    print (" -t --train  [word]  : add raw data to raw dictionary file\n")
-    print (" -d --delete [word]  : delete [word] from dictionary and exits.")
-    print ("                       '*' deletes everything!\n")
-    print (" -i --ini    [file]  : use alternative configuration file\n")
-    print (" -a --analysis       : show dictionary analysis and exits.\n")
-    print (" -u --unit           : run unit tests\n")
+    print (" -h --help                      : this help\n")
+    print (" -l --loop                      : loop forever\n")
+    print (" -e --error                     : redirect sdterr to error.log\n")
+    print (" -p --plot                      : plot results (only without loop option)\n")
+    print (" -v --verbose                   : enable verbose mode\n")
+    print (" -~ --wave                      : create *.wav files (token/tokenN.wav) for")
+    print ("                                each detected word\n")
+    print (" -c --create                    : create dict from raw input files\n")
+    print (" -o --overview                  : list all dict entries\n")
+    print (" -s --show   [word]             : show detailed [word] entry information")
+    print ("                                '*' shows all entries!\n")
+    print (" -w --write  [file]             : write raw to [dir/filename]\n")
+    print (" -r --read   [file]             : read raw from [dir/filename]\n")
+    print (" -e --evaluate [file] L Delta   : runs automated testing for subwindowing\n")
+    print (" -t --train  [word]             : add raw data to raw dictionary file\n")
+    print (" -d --delete [word]             : delete [word] from dictionary and exits.")
+    print ("                                '*' deletes everything!\n")
+    print (" -i --ini    [file]             : use alternative configuration file\n")
+    print (" -a --analysis                  : show dictionary analysis and exits.\n")
+    print (" -u --unit                      : run unit tests\n")
 
 main(sys.argv[1:])
