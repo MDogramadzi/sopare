@@ -36,8 +36,8 @@ def main(argv):
     wave = False
     error = False
     cfg_ini = None
-    length = None
-    delta = None
+    length = 0.0
+    delta = 0.0
 
     recreate = False
     unit = False

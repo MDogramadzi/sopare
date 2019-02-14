@@ -65,7 +65,7 @@ class compare():
                     if (fast_sim > self.results[id][x][dict_c_pos]):
                         self.results[id][x][dict_c_pos] = fast_sim
                     
-                    if ('shift' in characteristic):
+                    if ('shift' in characteristic): 
                         shift = characteristic['shift']
                         fc_sim = self.util.single_similarity(shift['fc'], dcharacteristic['fc'])
                         dfm_sim = self.util.single_similarity(shift['dfm'], dcharacteristic['dfm'])
