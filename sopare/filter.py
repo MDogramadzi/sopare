@@ -128,6 +128,7 @@ class filtering():
         self.last_data = data
         self.data_shift_counter += 1
 
+
     def filter(self, data, meta):
         if self.cfg.getfloatoption('cmdlopt', 'length') != 0.0:
             self.populate_subwindow(data)

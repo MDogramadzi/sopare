@@ -87,9 +87,9 @@ def main(argv):
             if opt in ("-r", "--read"):
                 infile = arg
             if opt in ('-e', '--evaluate'):  # testing requires infile, L, and Delta
-                # infile = sys.argv[2]
-                length = sys.argv[2]
-                delta = sys.argv[3]
+                infile = sys.argv[2]
+                length = sys.argv[3]
+                delta = sys.argv[4]
             if opt in ("-t", "--train"):
                 dict = arg
             if opt in ("-d", "--delete"):
