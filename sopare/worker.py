@@ -37,7 +37,7 @@ class worker(multiprocessing.Process):
         self.logger = self.cfg.getlogger().getlog()
         self.logger = logging.getLogger(__name__)
         self.analyze = sopare.analyze.analyze(self.cfg)
-        self.compare = sopare.comparator.compare(self.cfg.getbool('cmdlopt', 'debug'), self.util, self.cfg)
+        self.compare = sopare.comparator.compare(self.cfg.getbool('cmdlopt', 'debug'), self.util)
         self.running = True
         self.counter = 0
         self.plot_counter = 0

@@ -19,8 +19,7 @@ under the License.
 
 class compare():
 
-    def __init__(self, debug, util, cfg):
-        self.cfg = cfg
+    def __init__(self, debug, util):
         self.debug = debug
         self.util = util
         self.learned_dictionary = self.util.getDICT()
@@ -65,7 +64,7 @@ class compare():
                     if (fast_sim > self.results[id][x][dict_c_pos]):
                         self.results[id][x][dict_c_pos] = fast_sim
                     
-                    if ('shift' in characteristic): 
+                    if ('shift' in characteristic):
                         shift = characteristic['shift']
                         fc_sim = self.util.single_similarity(shift['fc'], dcharacteristic['fc'])
                         dfm_sim = self.util.single_similarity(shift['dfm'], dcharacteristic['dfm'])

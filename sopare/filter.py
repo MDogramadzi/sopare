@@ -22,7 +22,7 @@ import logging
 import numpy
 import sopare.worker
 import sopare.characteristics
-from math import ceil
+from math import ceil, floor
 
 class filtering():
 
@@ -77,36 +77,14 @@ class filtering():
     def populate_subwindow(self, data):
         length = self.cfg.getfloatoption('cmdlopt', 'length')  # length of subwindow (ratio to regular length)
         delta = self.cfg.getfloatoption('cmdlopt', 'delta')  # offset from end of regular window
-        prv_chk_mlt = length + delta - 1  # portion of previous chunk
+        prv_chk_mlt = 2 - length - delta  # portion of previous chunk
         cur_chk_mlt = 1 - delta  # portion of current chunk
         chk_len = self.cfg.getintoption('stream', 'CHUNKS')
         if (self.first == True):
             self.data_shift = [ ]
-            self.data_shift = [ v for v in range(0, int(ceil(prv_chk_mlt*chk_len))) ]
         else:
-            self.data_shift = self.last_data[int(ceil(prv_chk_mlt*chk_len)):]
-        
-        self.data_shift.extend(data[0:int(ceil(cur_chk_mlt*chk_len))])
-
-        self.last_data = data
-
-
-
-    def n_shift_n(self, data):
-        windows = self.cfg.getintoption('experimental', 'WINDOW_COUNT')
-        if (self.first == True):
-            self.data_shift = [ ]
-            for _ in range(0, windows):
-                self.data_shift.append([])  # one array for each split window
-        
-            for w in range(0, windows):
-                self.data_shift[w] = [ v for v in range(0, (((windows-w)*self.cfg.getintoption('stream', 'CHUNKS'))/(windows+1))) ]
-                self.data_shift[w].extend(data[0:(((w+1)*len(data))/(windows+1))])
-
-        else:
-            for w in range(0, windows):
-                self.data_shift[w] = self.last_data[(((windows-w)*len(self.last_data))/(windows+1)):]
-                self.data_shift[w].extend(data[0:(((w+1)*len(data))/(windows+1))])
+            self.data_shift = self.last_data[int(ceil(prv_chk_mlt * chk_len)):]
+            self.data_shift.extend(data[0:int(ceil(cur_chk_mlt * chk_len))])
 
         self.last_data = data
 
@@ -127,6 +105,25 @@ class filtering():
 
         self.last_data = data
         self.data_shift_counter += 1
+
+
+    def n_shift_n(self, data):
+        windows = self.cfg.getintoption('experimental', 'WINDOW_COUNT')
+        if (self.first == True):
+            self.data_shift = [ ]
+            for _ in range(0, windows):
+                self.data_shift.append([])  # one array for each split window
+        
+            for w in range(0, windows):
+                self.data_shift[w] = [ v for v in range(0, (((windows-w)*self.cfg.getintoption('stream', 'CHUNKS'))/(windows+1))) ]
+                self.data_shift[w].extend(data[0:(((w+1)*len(data))/(windows+1))])
+
+        else:
+            for w in range(0, windows):
+                self.data_shift[w] = self.last_data[(((windows-w)*len(self.last_data))/(windows+1)):]
+                self.data_shift[w].extend(data[0:(((w+1)*len(data))/(windows+1))])
+
+        self.last_data = data
 
 
     def filter(self, data, meta):
@@ -150,8 +147,14 @@ class filtering():
                 if (hl % 2 != 0):
                     hl += 1
                 hw = numpy.hanning(hl)
-                shift_fft = numpy.fft.rfft(self.data_shift * hw)
+                try:
+                    shift_fft = numpy.fft.rfft(self.data_shift * hw)
+                except ValueError:
+                    hl -= 1
+                    hw = numpy.hanning(hl)
+                    shift_fft = numpy.fft.rfft(self.data_shift * hw)
                 self.first = False
+            
         fft[self.cfg.getintoption('characteristic', 'HIGH_FREQ'):] = 0
         fft[:self.cfg.getintoption('characteristic', 'LOW_FREQ')] = 0
         data = numpy.fft.irfft(fft)

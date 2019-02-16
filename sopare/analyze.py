@@ -134,16 +134,14 @@ class analyze():
                         characteristic, _ = do
                         sim, sl, sr = self.token_sim(characteristic, dcharacteristic)
 
-                        windows = self.cfg.getintoption('experimental', 'WINDOW_COUNT')
-                        for w in range(0, windows):
-                            if ('shift_'+str(w) in characteristic):
-                                ssim, ssl, ssr = self.token_sim(characteristic['shift_'+str(w)], dcharacteristic)
-                                if (ssim > sim):
-                                    sim = ssim
-                                if  (ssr < sr):
-                                    sr = ssr
-                                if (ssl < sl):
-                                    sl = ssl
+                        if ('shift' in characteristic):
+                            ssim, ssl, ssr = self.token_sim(characteristic['shift'], dcharacteristic)
+                            if (ssim > sim):
+                                sim = ssim
+                            if  (ssr < sr):
+                                sr = ssr
+                            if (ssl < sl):
+                                sl = ssl
                         token_sim[0] += sim
                         token_sim[1] += sl
                         token_sim[2] += sr
