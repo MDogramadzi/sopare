@@ -68,7 +68,9 @@ class analyze():
             for i, row in enumerate(results[id]):
                 row = self.row_validation(row, id)
                 row_result = sum(row[0:len(row)]) / self.dict_analysis[id]['min_tokens']
-                if (row_result >= self.cfg.getfloatoption('compare', 'MARGINAL_VALUE')):
+                # MARGINAL_VALUE
+                if (row_result >= self.cfg.getfloatoption('cmdlopt', 'mv')):
+                #if (row_result >= self.cfg.getfloatoption('compare', 'MARGINAL_VALUE')):
                     arr.append([row_result, i, id])
                 else:
                     self.logger.debug('removing '+id + ' from potential start position '+str(i) + ' bc MARGINAL_VALUE > ' +str(row_result))
@@ -104,7 +106,9 @@ class analyze():
         sorted_best_match = sorted(best_match, key=lambda x: (x[1] +  x[2], -x[0]))
         self.debug_info += str(sorted_best_match).join(['sorted_best_match: ', '\n\n'])
         for i, best in enumerate(sorted_best_match):
-            if (best[0] >= self.cfg.getfloatoption('compare', 'MIN_CROSS_SIMILARITY') and best[1] <= self.cfg.getfloatoption('compare', 'MIN_LEFT_DISTANCE') and best[2] <= self.cfg.getfloatoption('compare', 'MIN_RIGHT_DISTANCE')):
+            # MIN_CROSS_SIMILARITY
+            if (best[0] >= self.cfg.getfloatoption('cmdlopt', 'mc') and best[1] <= self.cfg.getfloatoption('compare', 'MIN_LEFT_DISTANCE') and best[2] <= self.cfg.getfloatoption('compare', 'MIN_RIGHT_DISTANCE')):
+            #if (best[0] >= self.cfg.getfloatoption('compare', 'MIN_CROSS_SIMILARITY') and best[1] <= self.cfg.getfloatoption('compare', 'MIN_LEFT_DISTANCE') and best[2] <= self.cfg.getfloatoption('compare', 'MIN_RIGHT_DISTANCE')):
                 for x in range(best[3], best[3] + best[4]):
                     if (match_results[x] == ''):
                         match_results[x] = best[5]

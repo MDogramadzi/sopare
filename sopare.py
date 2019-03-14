@@ -38,6 +38,8 @@ def main(argv):
     cfg_ini = None
     length = 0.0
     delta = 0.0
+    mv = 0.0
+    mc = 0.0
 
     recreate = False
     unit = False
@@ -90,6 +92,8 @@ def main(argv):
                 infile = sys.argv[2]
                 length = sys.argv[3]
                 delta = sys.argv[4]
+                mv = sys.argv[5]
+                mc = sys.argv[6]
             if opt in ("-t", "--train"):
                 dict = arg
             if opt in ("-d", "--delete"):
@@ -100,7 +104,7 @@ def main(argv):
             if opt in ("-u", "--unit"):
                 unit = True
 
-    cfg = create_config(cfg_ini, endless_loop, debug, plot, wave, outfile, infile, dict, error, length, delta)
+    cfg = create_config(cfg_ini, endless_loop, debug, plot, wave, outfile, infile, dict, error, length, delta, mv, mc)
 
     if (recreate == True):
         recreate_dict(debug, cfg)
@@ -113,7 +117,7 @@ def main(argv):
 
     recorder.recorder(cfg)
 
-def create_config(cfg_ini, endless_loop, debug, plot, wave, outfile, infile, dict, error, length, delta):
+def create_config(cfg_ini, endless_loop, debug, plot, wave, outfile, infile, dict, error, length, delta, mv, mc):
     if (cfg_ini == None):
         cfg = config.config()
     else:
@@ -129,6 +133,8 @@ def create_config(cfg_ini, endless_loop, debug, plot, wave, outfile, infile, dic
     cfg.setoption('cmdlopt', 'dict', dict)
     cfg.setoption('cmdlopt', 'length', length)
     cfg.setoption('cmdlopt', 'delta', delta)
+    cfg.setoption('cmdlopt', 'mv', mv)
+    cfg.setoption('cmdlopt', 'mc', mc)
     cfg.addlogger(logger)
     return cfg
 

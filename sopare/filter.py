@@ -29,6 +29,7 @@ class filtering():
     def __init__(self, cfg):
         self.cfg = cfg
         self.first = True
+        self.first_shift = True
         self.queue = multiprocessing.Queue()
         self.characteristic = sopare.characteristics.characteristic(self.cfg.getfloatoption('characteristic', 'PEAK_FACTOR'))
         self.worker = sopare.worker.worker(self.cfg, self.queue)
@@ -75,16 +76,18 @@ class filtering():
 
     
     def populate_subwindow(self, data):
-        length = self.cfg.getfloatoption('cmdlopt', 'length')  # length of subwindow (ratio to regular length)
-        delta = self.cfg.getfloatoption('cmdlopt', 'delta')  # offset from end of regular window
+        length = self.cfg.getfloatoption('cmdlopt', 'length')  # length of subwindow (ratio to chunk length)
+        delta = self.cfg.getfloatoption('cmdlopt', 'delta')  # offset from end of regular window (in terms of chunk length)
         prv_chk_mlt = 2 - length - delta  # portion of previous chunk
         cur_chk_mlt = 1 - delta  # portion of current chunk
         chk_len = self.cfg.getintoption('stream', 'CHUNKS')
-        if (self.first == True):
+        if (self.first_shift == True):
             self.data_shift = [ ]
+            self.data_shift = [ v for v in range(0, int(ceil(cur_chk_mlt * chk_len))) ]
         else:
             self.data_shift = self.last_data[int(ceil(prv_chk_mlt * chk_len)):]
-            self.data_shift.extend(data[0:int(ceil(cur_chk_mlt * chk_len))])
+        
+        self.data_shift.extend(data[0:int(ceil(cur_chk_mlt * chk_len))])
 
         self.last_data = data
 
@@ -153,7 +156,7 @@ class filtering():
                     hl -= 1
                     hw = numpy.hanning(hl)
                     shift_fft = numpy.fft.rfft(self.data_shift * hw)
-                self.first = False
+                #self.first = False
             
         fft[self.cfg.getintoption('characteristic', 'HIGH_FREQ'):] = 0
         fft[:self.cfg.getintoption('characteristic', 'LOW_FREQ')] = 0
@@ -171,7 +174,7 @@ class filtering():
             normalized = self.normalize(chunked_norm)
         characteristic = self.characteristic.getcharacteristic(fft, normalized, meta)
 
-        if ((shift_fft is not None) and self.cfg.hasoption('experimental', 'FFT_SHIFT') and self.cfg.getbool('experimental', 'FFT_SHIFT') == True):
+        if ((shift_fft is not None) and self.cfg.hasoption('experimental', 'FFT_SHIFT') and self.cfg.getbool('experimental', 'FFT_SHIFT') == True and self.first_shift == False):
             shift_fft[self.cfg.getintoption('characteristic', 'HIGH_FREQ'):] = 0
             shift_fft[:self.cfg.getintoption('characteristic', 'LOW_FREQ')] = 0
             shift_data = numpy.fft.irfft(shift_fft)
@@ -188,6 +191,8 @@ class filtering():
                 shift_normalized = self.normalize(shift_chunked_norm)
             shift_characteristic = self.characteristic.getcharacteristic(shift_fft, shift_normalized, meta)
             characteristic['shift'] = shift_characteristic
+
+        self.first_shift = False
 
         obj = { 'action': 'data', 'token': data, 'fft': fft, 'norm': normalized, 'meta': meta, 'characteristic': characteristic }
         self.queue.put(obj)

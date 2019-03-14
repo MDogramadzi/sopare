@@ -1,0 +1,33 @@
+~~~~~~~~~~~~~~
+Length: 0.0 ... Delta: 0.0 ... F1 Score: 0.848484848485
+Length: 1.01 ... Delta: 0.0 ... F1 Score: 0.848484848485
+Length: 1.01 ... Delta: 0.01 ... F1 Score: 0.848484848485
+Length: 1.01 ... Delta: 0.02 ... F1 Score: 0.848484848485
+Length: 1.01 ... Delta: 0.03 ... F1 Score: 0.848484848485
+Length: 1.01 ... Delta: 0.04 ... F1 Score: 0.848484848485
+Length: 1.01 ... Delta: 0.05 ... F1 Score: 0.848484848485
+Length: 1.02 ... Delta: 0.0 ... F1 Score: 0.848484848485
+Length: 1.02 ... Delta: 0.01 ... F1 Score: 0.848484848485
+Length: 1.02 ... Delta: 0.02 ... F1 Score: 0.848484848485
+Length: 1.02 ... Delta: 0.03 ... F1 Score: 0.848484848485
+Length: 1.02 ... Delta: 0.04 ... F1 Score: 0.848484848485
+Length: 1.02 ... Delta: 0.05 ... F1 Score: 0.848484848485
+Length: 1.03 ... Delta: 0.0 ... F1 Score: 0.848484848485
+Length: 1.03 ... Delta: 0.01 ... F1 Score: 0.848484848485
+Length: 1.03 ... Delta: 0.02 ... F1 Score: 0.848484848485
+Length: 1.03 ... Delta: 0.03 ... F1 Score: 0.848484848485
+Length: 1.03 ... Delta: 0.04 ... F1 Score: 0.848484848485
+Length: 1.03 ... Delta: 0.05 ... F1 Score: 0.848484848485
+Length: 1.04 ... Delta: 0.0 ... F1 Score: 0.848484848485
+Length: 1.04 ... Delta: 0.01 ... F1 Score: 0.848484848485
+Length: 1.04 ... Delta: 0.02 ... F1 Score: 0.848484848485
+Length: 1.04 ... Delta: 0.03 ... F1 Score: 0.848484848485
+Length: 1.04 ... Delta: 0.04 ... F1 Score: 0.848484848485
+Length: 1.04 ... Delta: 0.05 ... F1 Score: 0.848484848485
+Length: 1.05 ... Delta: 0.0 ... F1 Score: 0.848484848485
+Length: 1.05 ... Delta: 0.01 ... F1 Score: 0.848484848485
+Length: 1.05 ... Delta: 0.02 ... F1 Score: 0.848484848485
+Length: 1.05 ... Delta: 0.03 ... F1 Score: 0.848484848485
+Length: 1.05 ... Delta: 0.04 ... F1 Score: 0.848484848485
+Length: 1.05 ... Delta: 0.05 ... F1 Score: 0.848484848485
+~~~~~~~~~~~~~~
