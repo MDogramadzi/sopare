@@ -6,6 +6,7 @@ import os
 import RPi.GPIO as GPIO
 GPIO.setmode(GPIO.BCM)
 GPIO.setup(4,GPIO.OUT)
+GPIO.setup(17,GPIO.OUT)
 
 
 # Read in the mapping file for IR commands to Trained words
@@ -13,8 +14,6 @@ ir_map = {}
 
 with open('ir_map.json') as f:
     ir_map = json.load(f)
-
-print(ir_map)
 
 
 # Bluetooth Setup Stages
@@ -46,7 +45,7 @@ def runListener(speech_child):
 
 def handleRecognisedWord(word):
     # emit IR code, activate 'ready' mode
-    #print(word)
+    print(word)
     for label, trainedArray in ir_map.items():
         if word == str(trainedArray):
             print("Emitting: ", label)
@@ -62,6 +61,12 @@ def checkStopListening(bluetooth_child):
     speechRecogniserActive = False
 
 
+def blinkLED():
+    GPIO.output(17,GPIO.HIGH)
+    time.sleep(0.2)
+    GPIO.output(17,GPIO.LOW)
+
+
 try:
     while True:
         # ["Writing: start listening", "Writing: train-power", ...]
@@ -74,10 +79,12 @@ try:
 
             process = Thread(target=runListener, args=[speech_child])
             process.start()
+            GPIO.output(17,GPIO.HIGH)
 
             bluetooth_child.expect('Writing: stop listening')
             print("Kill process: sopare.py -l")
             speechRecogniserActive = False
+            GPIO.output(17,GPIO.LOW)
             speech_child.kill(0)
             speech_child.close()
 
@@ -88,9 +95,13 @@ try:
             train_proc = "./sopare.py -v -t " + trainingWord
             training_child = pexpect.spawn(train_proc)
             training_child.expect("INFO:sopare.buffering:buffering queue runner")
-            print("Training Ready")  # some kind of feedback
+            blinkLED()
+            print("Training Ready")
             training_child.expect("INFO:sopare.recorder:stop endless recording")
-            print("Training Complete")  # some kind of other feedback
+            blinkLED()
+            time.sleep(0.2)
+            blinkLED()
+            print("Training Complete")
             training_child.close()
             os.system("./sopare.py -c")
             print("Compiled and added new word")
@@ -107,7 +118,8 @@ try:
             time.sleep(2)
             record_child.sendline(ir_label)
             record_child.expect("Please enter the name for the next button.*")
-            print("Ready for IR command, blink an LED")
+            blinkedLED()
+            print("Ready for IR command")
             record_child.expect("Please enter the name for the next button.*")
             record_child.sendline()
             os.system("sudo /etc/init.d/lircd start")
@@ -118,6 +130,9 @@ try:
             ir_map_cur[ir_label.rstrip('\r\n').decode('utf8')] = []
             with open("ir_map.json", "w") as f:
                 json.dump(ir_map_cur, f)
+            blinkLED()
+            time.sleep(0.2)
+            blinkLED()
 
 
         elif i == 3:
