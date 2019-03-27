@@ -130,8 +130,8 @@ class filtering():
 
 
     def filter(self, data, meta):
-        if self.cfg.getfloatoption('cmdlopt', 'length') != 0.0:
-            self.populate_subwindow(data)
+        #if self.cfg.getfloatoption('cmdlopt', 'length') != 0.0:
+         #   self.populate_subwindow(data)
         shift_fft = None
         if (self.first == False or self.cfg.getbool('characteristic', 'HANNING') == False or len(data) < self.cfg.getintoption('stream', 'CHUNKS')):
             fft = numpy.fft.rfft(data)

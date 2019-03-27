@@ -85,13 +85,14 @@ class recorder():
         while self.running:
             try:
                 if (self.buffering.is_alive()):
-                    buf = self.stream.read(self.cfg.getintoption('stream', 'CHUNK'))
+                    buf = self.stream.read(self.cfg.getintoption('stream', 'CHUNK'), exception_on_overflow = False)
                     self.queue.put(buf)
                 else:
                     self.logger.info("Buffering not alive, stop recording")
                     self.queue.close()
                     break
             except IOError as e:
+                print(e)
                 self.logger.warning("stream read error "+str(e))
         self.stop()
         sys.exit()
